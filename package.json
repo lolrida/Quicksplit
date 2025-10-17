@@ -13,13 +13,15 @@
     "start": "node src/backend/server.js"
   },
   "dependencies": {
+    "@chakra-ui/react": "^3.27.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
-    "@tailwindcss/vite": "^4.1.13",
+    "@tailwindcss/vite": "^4.1.14",
+    "antd": "^5.27.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cors": "^2.8.5",
@@ -28,10 +30,13 @@
     "lucide": "^0.544.0",
     "lucide-react": "^0.544.0",
     "mongoose": "^8.18.2",
+    "next-themes": "^0.4.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-icons": "^5.5.0",
+    "react-resizable-panels": "^3.0.6",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.13",
+    "tailwindcss": "^4.1.14",
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
@@ -40,12 +45,14 @@
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.3",
     "concurrently": "^9.2.1",
+    "daisyui": "^5.1.27",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.4.0",
     "nodemon": "^3.1.10",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "compilerOptions": {
     "baseUrl": ".",
