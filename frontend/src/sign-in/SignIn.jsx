@@ -66,7 +66,6 @@ export default function SignIn(props) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [open, setOpen] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -76,67 +75,16 @@ export default function SignIn(props) {
     setOpen(false);
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    
-    if (!validateInputs()) {
+  const handleSubmit = (event) => {
+    if (emailError || passwordError) {
+      event.preventDefault();
       return;
     }
-
     const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const password = data.get('password');
-
-    setLoading(true);
-
-    try {
-      // Prima richiediamo il cookie CSRF dal backend (assicurarsi che CORS_ALLOW_CREDENTIALS = True)
-      await fetch('http://localhost:8000/api/auth/csrf/', {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      // Leggi il cookie csrftoken
-      const getCookie = (name) => {
-        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-        if (match) return match[2];
-        return null;
-      };
-
-      const csrftoken = getCookie('csrftoken');
-
-      const response = await fetch('http://localhost:8000/api/auth/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          email: email,  // Invia email direttamente
-          password: password,
-        }),
-      });
-
-      const responseData = await response.json();
-
-      if (response.ok) {
-        // Login successful
-        if (props.onLogin) {
-          props.onLogin(responseData.user);
-        }
-      } else {
-        // Login failed
-        setPasswordError(true);
-        setPasswordErrorMessage(responseData.error || 'Credenziali non valide');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setPasswordError(true);
-      setPasswordErrorMessage('Errore di connessione al server');
-    } finally {
-      setLoading(false);
-    }
+    console.log({
+      email: data.get('email'),
+      password: data.get('password'),
+    });
   };
 
   const validateInputs = () => {
@@ -234,9 +182,9 @@ export default function SignIn(props) {
               type="submit"
               fullWidth
               variant="contained"
-              disabled={loading}
+              onClick={validateInputs}
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              Sign in
             </Button>
             <Link
               component="button"
@@ -250,7 +198,22 @@ export default function SignIn(props) {
           </Box>
           <Divider>or</Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => alert('Sign in with Google')}
+              startIcon={<GoogleIcon />}
+            >
+              Sign in with Google
+            </Button>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => alert('Sign in with Facebook')}
+              startIcon={<FacebookIcon />}
+            >
+              Sign in with Facebook
+            </Button>
             <Typography sx={{ textAlign: 'center' }}>
               Don&apos;t have an account?{' '}
               <Link

@@ -20,15 +20,24 @@ import { GoogleIcon, FacebookIcon, SitemarkIcon } from './components/CustomIcons
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  alignSelf: 'center',
   width: '100%',
+  maxWidth: '500px',
   padding: theme.spacing(4),
   gap: theme.spacing(2),
-  margin: 'auto',
+  margin: '0 auto',
   boxShadow:
     'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-  [theme.breakpoints.up('sm')]: {
-    width: '450px',
+  borderRadius: theme.spacing(2),
+  boxSizing: 'border-box',
+  [theme.breakpoints.down('sm')]: {
+    maxWidth: 'calc(100vw - 32px)',
+    padding: theme.spacing(3),
+    margin: '0 auto',
+  },
+  [theme.breakpoints.down('xs')]: {
+    padding: theme.spacing(2),
+    gap: theme.spacing(1.5),
+    maxWidth: 'calc(100vw - 16px)',
   },
   ...theme.applyStyles('dark', {
     boxShadow:
@@ -36,45 +45,41 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-const SignUpContainer = styled(Stack)(({ theme }) => ({
-  height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
-  minHeight: '100%',
+const SignUpContainer = styled(Box)(({ theme }) => ({
+  minHeight: '100vh',
+  width: '100%',
+  margin: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
   padding: theme.spacing(2),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(4),
+  backgroundColor: theme.palette.background.default,
+  position: 'relative',
+  boxSizing: 'border-box',
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1),
+    minHeight: '100vh',
+    justifyContent: 'center',
   },
-  '&::before': {
-    content: '""',
-    display: 'block',
-    position: 'absolute',
-    zIndex: -1,
-    inset: 0,
-    backgroundImage:
-      'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))',
-    backgroundRepeat: 'no-repeat',
-    ...theme.applyStyles('dark', {
-      backgroundImage:
-        'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
-    }),
-  },
+  // Background gradient opzionale
+  background: `linear-gradient(135deg, 
+    ${theme.palette.primary.light}08 0%, 
+    ${theme.palette.secondary.light}08 100%)`,
 }));
 
-export default function SignUp(props) {
+export default function SignUp(props: { disableCustomTheme?: boolean }) {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
-  const [usernameError, setUsernameError] = React.useState(false);
-  const [usernameErrorMessage, setUsernameErrorMessage] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
 
   const validateInputs = () => {
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
-    const name = document.getElementById('name');
-    const username = document.getElementById('username');
+    const email = document.getElementById('email') as HTMLInputElement;
+    const password = document.getElementById('password') as HTMLInputElement;
+    const name = document.getElementById('name') as HTMLInputElement;
 
     let isValid = true;
 
@@ -105,88 +110,66 @@ export default function SignUp(props) {
       setNameErrorMessage('');
     }
 
-    if (!username.value || username.value.length < 3) {
-      setUsernameError(true);
-      setUsernameErrorMessage('Username must be at least 3 characters long.');
-      isValid = false;
-    } else {
-      setUsernameError(false);
-      setUsernameErrorMessage('');
-    }
-
     return isValid;
   };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    
-    if (!validateInputs()) {
+  
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    if (nameError || emailError || passwordError) {
+      event.preventDefault();
       return;
     }
-
     const data = new FormData(event.currentTarget);
-    const fullName = data.get('name');
-    const email = data.get('email');
-    const password = data.get('password');
-    const username = data.get('username');
-
-    // Dividi il nome completo in nome e cognome
-    const nameParts = fullName.trim().split(' ');
-    const firstName = nameParts[0];
-    const lastName = nameParts.slice(1).join(' ') || '';
-
-    setLoading(true);
-
-    try {
-      const response = await fetch('http://localhost:8000/api/auth/register/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          email: email,
-          password: password,
-          first_name: firstName,
-          last_name: lastName,
-        }),
-      });
-
-      const responseData = await response.json();
-      // risposta della registrazione
-      if (response.ok) {
-        
-        alert('Registrazione completata! Ora puoi effettuare il login.');
-        if (props.onRegisterSuccess) {
-          props.onRegisterSuccess();
-        }
-      } else {
-        
-        setEmailError(true);
-        setEmailErrorMessage(responseData.error || 'Errore durante la registrazione');
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setEmailError(true);
-      setEmailErrorMessage('Errore di connessione al server');
-    } finally {
-      setLoading(false);
-    }
+    console.log({
+      name: data.get('name'),
+      lastName: data.get('lastName'),
+      email: data.get('email'),
+      password: data.get('password'),
+    });
   };
+  
 
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
-      <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
-      <SignUpContainer direction="column" justifyContent="space-between">
+      <ColorModeSelect 
+        sx={{ 
+          position: 'fixed', 
+          top: { xs: '0.5rem', sm: '1rem' }, 
+          right: { xs: '0.5rem', sm: '1rem' },
+          zIndex: 1000
+        }} 
+      />
+      <SignUpContainer>
         <Card variant="outlined">
-          <SitemarkIcon />
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <SitemarkIcon />
+          </Box>
           <Typography
             component="h1"
             variant="h4"
-            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
+            sx={{ 
+              width: '100%', 
+              textAlign: 'center',
+              fontSize: {
+                xs: '1.75rem',
+                sm: '2rem',
+                md: '2.15rem'
+              },
+              fontWeight: 600,
+              mb: 1
+            }}
           >
-            Sign up
+            Registrati su QuickSplit
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ 
+              textAlign: 'center', 
+              color: 'text.secondary',
+              mb: 3 
+            }}
+          >
+            Crea il tuo account per iniziare a dividere le spese
           </Typography>
           <Box
             component="form"
@@ -205,20 +188,6 @@ export default function SignUp(props) {
                 error={nameError}
                 helperText={nameErrorMessage}
                 color={nameError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="username">Username</FormLabel>
-              <TextField
-                autoComplete="username"
-                name="username"
-                required
-                fullWidth
-                id="username"
-                placeholder="jonsnow"
-                error={usernameError}
-                helperText={usernameErrorMessage}
-                color={usernameError ? 'error' : 'primary'}
               />
             </FormControl>
             <FormControl>
@@ -260,32 +229,37 @@ export default function SignUp(props) {
               type="submit"
               fullWidth
               variant="contained"
-              disabled={loading}
+              onClick={validateInputs}
             >
-              {loading ? 'Signing up...' : 'Sign up'}
+              Sign up
             </Button>
           </Box>
           <Divider>
             <Typography sx={{ color: 'text.secondary' }}>or</Typography>
           </Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => alert('Sign up with Google')}
+              startIcon={<GoogleIcon />}
+            >
+              Sign up with Google
+            </Button>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => alert('Sign up with Facebook')}
+              startIcon={<FacebookIcon />}
+            >
+              Sign up with Facebook
+            </Button>
             <Typography sx={{ textAlign: 'center' }}>
               Already have an account?{' '}
               <Link
-                component="button"
+                href="/material-ui/getting-started/templates/sign-in/"
                 variant="body2"
-                onClick={props.onNavigateToSignIn}
-                sx={{ 
-                  alignSelf: 'center',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  border: 'none',
-                  background: 'none',
-                  color: 'primary.main',
-                  '&:hover': {
-                    textDecoration: 'underline'
-                  }
-                }}
+                sx={{ alignSelf: 'center' }}
               >
                 Sign in
               </Link>
